@@ -4,13 +4,13 @@
 #include <iostream>
 
 const int Board::size = 4;
-std::vector<std::vector<Pawn*>> Board::board;
+std::vector<std::vector<Token*>> Board::board;
 std::vector < std::vector<std::pair<int, int >>> Board::lines;
 
 
 Board::Board() {
 	for (int i = 0; i < size; i++) {
-		board.push_back(std::vector<Pawn*>());
+		board.push_back(std::vector<Token*>());
 		for (int j = 0; j < size; j++) {
 			board[i].push_back(nullptr);
 		}
@@ -32,17 +32,17 @@ Board::Board() {
 	}
 }
 
-bool Board::addPawn(int x1, int x2, PlayerData &player, Pawn::Shape faceUp) {
+bool Board::addToken(int x1, int x2, PlayerData &player, Token::Shape faceUp) {
 	if (board[x1][x2] != nullptr)
 		return false;
 	if (player.pawnsLeft == 0)
 		return false;
 	player.pawnsLeft--;
-	board[x1][x2] = new Pawn(player.playerType, faceUp);
+	board[x1][x2] = new Token(player.playerType, faceUp);
 	return true;
 }
 
-bool Board::flipPawn(int x1, int x2, const PlayerData &player) {
+bool Board::flipToken(int x1, int x2, const PlayerData &player) {
 	if (board[x1][x2] == nullptr)
 		return false;
 	else if (board[x1][x2]->getPlayerType() != player.playerType)
@@ -52,15 +52,15 @@ bool Board::flipPawn(int x1, int x2, const PlayerData &player) {
 }
 
 bool Board::playerHasWon(const PlayerData& player) {
-	int (*getAttribute)(Pawn*);
+	int (*getAttribute)(Token*);
 	if (player.winMode == WinMode::allignColours) {
-		getAttribute = [](Pawn* p)
+		getAttribute = [](Token* p)
 		{
 			return (static_cast<int>(p->getShapeColour()));
 		};
 	}
 	else {
-		getAttribute = [](Pawn* p)
+		getAttribute = [](Token* p)
 		{
 			return (static_cast<int>(p->getShape()));
 		};
@@ -187,7 +187,7 @@ void Board::print(const PlayerData &player, const PlayerData &AI) {
 		for (int i = 0, s = -1; i < player.pawnsLeft; i++) {
 			s *=-1;
 			std::cout << " ";
-			Pawn(player.playerType, static_cast<Pawn::Shape>(s)).print();
+			Token(player.playerType, static_cast<Token::Shape>(s)).print();
 			std::cout << " ";
 		}
 		std::cout << "(" << player.pawnsLeft << ")" << std::endl;
@@ -195,13 +195,13 @@ void Board::print(const PlayerData &player, const PlayerData &AI) {
 		for (int i = 0, s = -1; i < AI.pawnsLeft; i++) {
 			s *= -1;
 			std::cout << " ";
-			Pawn(AI.playerType, static_cast<Pawn::Shape>(s)).print();
+			Token(AI.playerType, static_cast<Token::Shape>(s)).print();
 			std::cout << " ";
 		}
 		std::cout << "(" << AI.pawnsLeft << ")\n"<<std::endl;
 
 }
 
-Pawn* Board::getPawnAtPositon(int x1, int x2) {
+Token* Board::getTokenAtPositon(int x1, int x2) {
 	return board[x1][x2];
 }

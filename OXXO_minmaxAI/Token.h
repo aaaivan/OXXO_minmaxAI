@@ -1,9 +1,9 @@
-#ifndef PAWN_H
-#define PAWN_H
+#ifndef TOKEN_H
+#define TOKEN_H
 #include <utility>
 #include <vector>
 
-class Pawn
+class Token
 {
 public:
 	enum class PlayerType
@@ -19,14 +19,14 @@ public:
 		x=-1, o=1
 	};
 private:
-	unsigned short pawnColours[2];
+	unsigned short tokenColours[2];
 	PlayerType playerType;
 	std::pair<ShapeColor, Shape> faces[2];
 	short faceUp;
 	static const unsigned int consolColour;
 	static const char c[2];
 public:
-	Pawn(PlayerType _playerType, Shape _faceUp);
+	Token(PlayerType _playerType, Shape _faceUp);
 	PlayerType getPlayerType();
 	ShapeColor getShapeColour();
 	Shape getShape();
@@ -34,4 +34,4 @@ public:
 	void flip();
 };
 
-#endif // !PAWN_H
+#endif // !TOKEN_H

@@ -18,24 +18,24 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pawn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Pawn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Declarations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

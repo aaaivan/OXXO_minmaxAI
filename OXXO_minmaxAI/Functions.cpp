@@ -18,17 +18,17 @@ void askWinningMode(PlayerData &player, PlayerData &AI){
 		else if (input == 'S') {
 			player.winMode = WinMode::allignShapes;
 			AI.winMode = WinMode::allignColours;
-			player.playerType = Pawn::PlayerType::user;
-			AI.playerType = Pawn::PlayerType::AI;
-			std::cout << "Great! Your opponent will have to allign 4 colors, then.\nYOU WILL USE THE WHITE PAWNS!\n" << std::endl;
+			player.playerType = Token::PlayerType::user;
+			AI.playerType = Token::PlayerType::AI;
+			std::cout << "Great! Your opponent will have to allign 4 colors, then.\nYOU WILL USE THE WHITE TOKENS!\n" << std::endl;
 			return;
 		}
 		else if (input == 'C') {
 			AI.winMode = WinMode::allignShapes;
 			player.winMode = WinMode::allignColours;
-			player.playerType = Pawn::PlayerType::user;
-			AI.playerType = Pawn::PlayerType::AI;
-			std::cout << "Great! Your opponent will have to allign 4 shapes, then.\nYOU WILL USE THE WHITE PAWNS!\n" << std::endl;
+			player.playerType = Token::PlayerType::user;
+			AI.playerType = Token::PlayerType::AI;
+			std::cout << "Great! Your opponent will have to allign 4 shapes, then.\nYOU WILL USE THE WHITE TOKENS!\n" << std::endl;
 			return;
 		}
 		else
@@ -96,29 +96,29 @@ int getPlayerInputCol()
 
 void printTitleOfGame() {
 	std::cout << ">";
-	Pawn(Pawn::PlayerType::user, Pawn::Shape::o).print();
+	Token(Token::PlayerType::user, Token::Shape::o).print();
 	std::cout << " ";
-	Pawn(Pawn::PlayerType::user, Pawn::Shape::x).print();
+	Token(Token::PlayerType::user, Token::Shape::x).print();
 	std::cout << " ";
-	Pawn(Pawn::PlayerType::AI, Pawn::Shape::x).print();
+	Token(Token::PlayerType::AI, Token::Shape::x).print();
 	std::cout << " ";
-	Pawn(Pawn::PlayerType::AI, Pawn::Shape::o).print();
+	Token(Token::PlayerType::AI, Token::Shape::o).print();
 	std::cout << "<";
 	std::cout << "\nThe aim of the game is for one player to allign 4 Xs or 4 Os and for the other" <<
-		"\n to allign 4 black or 4 red symbols (indipendently of whether they are Xs or Os)." <<
-		"\nOn their turn, players can place a new pawn on an empty square or flip one of" <<
-		"\nTHEIR pawns alredy on the board. Each player has 8 pawns in total. If you make a" <<
-		"\nmove that cause both players to win, then you will automatically loose the game.\n"<< std::endl;
+		"\nto allign 4 black or 4 red symbols. Line-ups along the two diagonals are also valid." <<
+		"\nOn their turn, players can place a new token on an empty square or flip one of" <<
+		"\nTHEIR tokens alredy on the board. Each player has 8 tokens in total. If you make a" <<
+		"\nmove that causes both players to win, then you will automatically loose the game.\n"<< std::endl;
 }
 
-Pawn::Shape askFaceUp(PlayerData &p) {
+Token::Shape askFaceUp(PlayerData &p) {
 	std::cout << "How so you want to win?" << std::endl;
 	while (true)
 	{
 		std::cout << "Which face up? ";
-		Pawn(p.playerType, Pawn::Shape::o).print();
+		Token(p.playerType, Token::Shape::o).print();
 		std::cout << "(o) or ";
-		Pawn(p.playerType, Pawn::Shape::x).print();
+		Token(p.playerType, Token::Shape::x).print();
 		std::cout << "(x): ";
 		char input{};
 		std::string tempStr{};
@@ -129,10 +129,10 @@ Pawn::Shape askFaceUp(PlayerData &p) {
 		if (tempStr.length() != 1)
 			std::cout << "Invalid input. Try again." << std::endl;
 		else if (input == 'X') {
-			return Pawn::Shape::x;
+			return Token::Shape::x;
 		}
 		else if (input == 'O') {
-			return Pawn::Shape::o;
+			return Token::Shape::o;
 		}
 		else
 			std::cout << "Invalid input. Try again." << std::endl;

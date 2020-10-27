@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "Pawn.h"
+#include "Token.h"
 #include "Declarations.h"
 #include <iostream>
 #include <ctime>
@@ -21,22 +21,22 @@ int main() {
 		userWins = b.playerHasWon(player);
 		aiWins = b.playerHasWon(AI);
 		if (userWins && !aiWins) {
-			std::cout << "YOU WON!";
+			std::cout << "YOU WON!\n**********************************************************************************" << std::endl;
 			break;
 		}
 		else if (aiWins) {
-			std::cout << "YOU LOST!";
+			std::cout << "YOU LOST!\n**********************************************************************************" << std::endl;
 			break;
 		}
 		std::cout << "P1's turn.\n";
 		while (true) {
 			int row = getPlayerInputRow();
 			int col = getPlayerInputCol();
-			if (b.getPawnAtPositon(row, col) == nullptr) {
-				b.addPawn(row, col, player, askFaceUp(player));
+			if (b.getTokenAtPositon(row, col) == nullptr) {
+				b.addToken(row, col, player, askFaceUp(player));
 				break;
 			}
-			else if (b.flipPawn(row, col, player)) {
+			else if (b.flipToken(row, col, player)) {
 				break;
 			}
 			else {
@@ -47,22 +47,22 @@ int main() {
 		userWins = b.playerHasWon(player);
 		aiWins = b.playerHasWon(AI);
 		if (userWins && !aiWins) {
-			std::cout << "YOU WON!";
+			std::cout << "YOU WON!\n**********************************************************************************"<<std::endl;
 			break;
 		}
 		else if (aiWins) {
-			std::cout << "YOU LOST!";
+			std::cout << "YOU LOST!\n**********************************************************************************" << std::endl;
 			break;
 		}
 		std::cout << "P2's turn.\n";
 		while (true) {
 			int row = getPlayerInputRow();
 			int col = getPlayerInputCol();
-			if (b.getPawnAtPositon(row, col) == nullptr) {
-				b.addPawn(row, col, AI, askFaceUp(AI));
+			if (b.getTokenAtPositon(row, col) == nullptr) {
+				b.addToken(row, col, AI, askFaceUp(AI));
 				break;
 			}
-			else if (b.flipPawn(row, col, AI)) {
+			else if (b.flipToken(row, col, AI)) {
 				break;
 			}
 			else {
