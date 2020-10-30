@@ -19,7 +19,7 @@ public:
 		x=-1, o=1
 	};
 private:
-	unsigned short tokenColours[2];
+	unsigned short tokenBgColours[2];//for printing on the console
 	PlayerType playerType;
 	std::pair<ShapeColor, Shape> faces[2];
 	short faceUp;

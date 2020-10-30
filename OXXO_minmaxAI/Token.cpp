@@ -3,7 +3,7 @@
 #include <cstdio> // for printf()
 #include <iostream>
 
-const unsigned int Token::consolColour = 0x7;
+const unsigned int Token::consolColour = 0x7;//white on black
 const char Token::c[2] = { 'X', 'O' };
 
 Token::Token(PlayerType _playerType, Shape _faceUp): playerType(_playerType) {
@@ -14,8 +14,8 @@ Token::Token(PlayerType _playerType, Shape _faceUp): playerType(_playerType) {
 			faceUp = 0;
 		else
 			faceUp = 1;
-		tokenColours[0] = 0xf0;
-		tokenColours[1] = 0xfc;
+		tokenBgColours[0] = 0xf0; //black on white
+		tokenBgColours[1] = 0xfc; //red on white
 	}
 	else{
 		faces[0] = (std::pair< ShapeColor, Shape>(ShapeColor::red, Shape::x));
@@ -24,8 +24,8 @@ Token::Token(PlayerType _playerType, Shape _faceUp): playerType(_playerType) {
 			faceUp = 0;
 		else
 			faceUp = 1;
-		tokenColours[0] = 0xec;
-		tokenColours[1] = 0xe0;
+		tokenBgColours[0] = 0xec; //red on yellow
+		tokenBgColours[1] = 0xe0; //black on yellow
 	}
 }
 
@@ -43,7 +43,7 @@ Token::Shape Token::getShape() {
 }
 
 void Token::print() {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), tokenColours[faceUp]);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), tokenBgColours[faceUp]);
 	std::cout << " " << c[faceUp] << " ";
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), consolColour);
 }

@@ -12,6 +12,7 @@ private:
 	static std::vector<std::vector<Token*>> board;
 public:
 	Board();
+	~Board();
 	static bool addToken(int x1, int x2, Player &player, Token::Shape faceUp);
 	static void removeToken(int x1, int x2, Player& player);
 	static bool flipToken(int x1, int x2, const Player &player);

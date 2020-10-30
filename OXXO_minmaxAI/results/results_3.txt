@@ -1,0 +1,48 @@
+
+First move: Control AI
+Depth: 1
+Control AI wins: 10
+Advanced AI wins: 40
+Ratio (advanced/control): 0.8
+
+First move: Advances AI
+Depth: 1
+Control AI wins: 18
+Advanced AI wins: 32
+Ratio (advanced/control): 0.64
+
+First move: Control AI
+Depth: 2
+Control AI wins: 17
+Advanced AI wins: 32
+Ratio (advanced/control): 0.653061
+
+First move: Advances AI
+Depth: 2
+Control AI wins: 25
+Advanced AI wins: 25
+Ratio (advanced/control): 0.5
+
+First move: Control AI
+Depth: 3
+Control AI wins: 28
+Advanced AI wins: 22
+Ratio (advanced/control): 0.44
+
+First move: Advances AI
+Depth: 3
+Control AI wins: 20
+Advanced AI wins: 30
+Ratio (advanced/control): 0.6
+
+First move: Control AI
+Depth: 4
+Control AI wins: 20
+Advanced AI wins: 27
+Ratio (advanced/control): 0.574468
+
+First move: Advances AI
+Depth: 4
+Control AI wins: 19
+Advanced AI wins: 28
+Ratio (advanced/control): 0.595745
