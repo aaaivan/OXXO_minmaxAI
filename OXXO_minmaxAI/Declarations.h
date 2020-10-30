@@ -7,18 +7,18 @@ enum class WinMode {
 	allignColours, allignShapes
 };
 
-struct PlayerData {
+struct Player {
 	Token::PlayerType playerType;
 	WinMode winMode;
-	const int initialpawns = 8;
-	int pawnsLeft = initialpawns;
+	const int initialTokens = 8;
+	int tokensLeft = initialTokens;
 };
 
-void askWinningMode(PlayerData& player, PlayerData& AI);
+void askWinningMode(Player& player, Player& AI);
 int getPlayerInputRow();
 int getPlayerInputCol();
 void printTitleOfGame();
-Token::Shape askFaceUp(PlayerData& p);
+Token::Shape askFaceUp(Player& p);
 
 #endif // !DECLARETIONS_H
 

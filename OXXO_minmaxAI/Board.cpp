@@ -1,6 +1,5 @@
 #include "Board.h"
 #include <cstdlib>
-#include <limits>
 #include <iostream>
 
 const int Board::size = 4;
@@ -9,6 +8,9 @@ std::vector < std::vector<std::pair<int, int >>> Board::lines;
 
 
 Board::Board() {
+	board.clear();
+	lines.clear();
+
 	for (int i = 0; i < size; i++) {
 		board.push_back(std::vector<Token*>());
 		for (int j = 0; j < size; j++) {
@@ -32,17 +34,22 @@ Board::Board() {
 	}
 }
 
-bool Board::addToken(int x1, int x2, PlayerData &player, Token::Shape faceUp) {
+bool Board::addToken(int x1, int x2, Player &player, Token::Shape faceUp) {
 	if (board[x1][x2] != nullptr)
 		return false;
-	if (player.pawnsLeft == 0)
+	if (player.tokensLeft == 0)
 		return false;
-	player.pawnsLeft--;
+	player.tokensLeft--;
 	board[x1][x2] = new Token(player.playerType, faceUp);
 	return true;
 }
 
-bool Board::flipToken(int x1, int x2, const PlayerData &player) {
+void Board::removeToken(int x1, int x2, Player &player) {
+	board[x1][x2] = nullptr;
+	player.tokensLeft++;
+}
+
+bool Board::flipToken(int x1, int x2, const Player &player) {
 	if (board[x1][x2] == nullptr)
 		return false;
 	else if (board[x1][x2]->getPlayerType() != player.playerType)
@@ -51,28 +58,35 @@ bool Board::flipToken(int x1, int x2, const PlayerData &player) {
 	return true;
 }
 
-bool Board::playerHasWon(const PlayerData& player) {
-	int (*getAttribute)(Token*);
+bool Board::playerHasWon(const Player& player) {
+	int (*getAttribute)(Token*); //function pointer
+	//if the player is aligning COLOURS, getAttribute will return the colour of the Token
 	if (player.winMode == WinMode::allignColours) {
 		getAttribute = [](Token* p)
 		{
 			return (static_cast<int>(p->getShapeColour()));
 		};
 	}
+	//if the player is aligning SHAPES, getAttribute will return the shape of the Token
 	else {
 		getAttribute = [](Token* p)
 		{
 			return (static_cast<int>(p->getShape()));
 		};
 	}
-	for (int i = 0; i < lines.size(); i++) {
+	//loop through all the lines in the board:
+	//4 rows + 4 cols + 2 diagonals.
+	for (unsigned int i = 0; i < lines.size(); i++) {
 		bool won = true;
 		for (int lineCount = 0; lineCount < size - 1; lineCount++) {
+			//if one of the squares in the line is empty, this line is not winning
 			if (board[lines[i][lineCount].first][lines[i][lineCount].second] == nullptr ||
 				board[lines[i][lineCount + 1].first][lines[i][lineCount + 1].second] == nullptr) {
 				won = false;
 				break;
 			}
+			//if two tokens on the same line have different attributes (either SHAPES or COLOURS
+			//depending on which function getAttribute points to.), this line is not winning
 			if (getAttribute(board[lines[i][lineCount].first][lines[i][lineCount].second]) !=
 				getAttribute(board[lines[i][lineCount + 1].first][lines[i][lineCount + 1].second])) {
 				won = false;
@@ -85,41 +99,36 @@ bool Board::playerHasWon(const PlayerData& player) {
 	return false;
 }
 
-int Board::boardConfigScore(const PlayerData& user, const PlayerData& AI) {
-	bool userWins = playerHasWon(user);
-	bool aiWins = playerHasWon(AI);
-	if (userWins && !aiWins)
-		return std::numeric_limits<int>::max();
-	else if (aiWins)
-		return std::numeric_limits<int>::min();
-	int score = 0;
-	for (int i = 0; i < lines.size(); i++) {
+int Board::boardEvaluation(const Player& player, const Player& AI) {
+	int eval = 0;
+	for (unsigned i = 0; i < lines.size(); i++) {
 		int matchesScore=0;
 		int colourUnbalance = 0;
 		int shapeUnbalance = 0;
-		int pawnDominionScore = 0;
-		int pawnUnbalance = 0;
+		int tokenDominionScore = 0;
+		int tokenUnbalance = 0;
 		for (int lineCount = 0; lineCount < size; lineCount++) {
 			if (board[lines[i][lineCount].first][lines[i][lineCount].first] == nullptr)
 				continue;
 			colourUnbalance += static_cast<int>(board[lines[i][lineCount].first][lines[i][lineCount].first]->getShapeColour());
 			shapeUnbalance += static_cast<int>(board[lines[i][lineCount].first][lines[i][lineCount].first]->getShape());
-			shapeUnbalance += static_cast<int>(board[lines[i][lineCount].first][lines[i][lineCount].first]->getPlayerType());
+			tokenUnbalance += static_cast<int>(board[lines[i][lineCount].first][lines[i][lineCount].first]->getPlayerType());
 		}
 		matchesScore = colourUnbalance * colourUnbalance - shapeUnbalance * shapeUnbalance;
-		if (user.winMode == WinMode::allignShapes)
+		if (player.winMode == WinMode::allignShapes)
 			matchesScore *= -1;
-		if (abs(pawnUnbalance) < 3)
-			pawnDominionScore = (pawnUnbalance / abs(pawnUnbalance)) * pawnUnbalance * pawnUnbalance;
-		else
-			pawnDominionScore = 0;
-		score += matchesScore + pawnDominionScore;
+		if (abs(tokenUnbalance) < 3 && tokenUnbalance!=0)
+			tokenDominionScore = (tokenUnbalance / abs(tokenUnbalance)) * tokenUnbalance * tokenUnbalance;
+		eval += matchesScore + tokenDominionScore + (player.tokensLeft - AI.tokensLeft)/2 + std::rand() % 8 - 4;
 	}
-	int pawnsLeftScore= user.pawnsLeft-AI.pawnsLeft;
-	return (pawnsLeftScore + score)*32+(std::rand()%32);
+	return eval;
 }
 
-void Board::print(const PlayerData &player, const PlayerData &AI) {
+int Board::boardEvaluationControl(const Player& user, const Player& AI) {
+	return rand() % 32;
+}
+
+void Board::print(const Player &player, const Player &AI) {
 		//PRINT LETTERS ON TOP
 		std::cout << std::endl;
 		std::cout << "   ";
@@ -184,21 +193,21 @@ void Board::print(const PlayerData &player, const PlayerData &AI) {
 
 		//PRINT PAWNS YET TO PLAY
 		std::cout << "You: ";
-		for (int i = 0, s = -1; i < player.pawnsLeft; i++) {
+		for (int i = 0, s = -1; i < player.tokensLeft; i++) {
 			s *=-1;
 			std::cout << " ";
 			Token(player.playerType, static_cast<Token::Shape>(s)).print();
 			std::cout << " ";
 		}
-		std::cout << "(" << player.pawnsLeft << ")" << std::endl;
+		std::cout << "(" << player.tokensLeft << ")" << std::endl;
 		std::cout << "\nCPU: ";
-		for (int i = 0, s = -1; i < AI.pawnsLeft; i++) {
+		for (int i = 0, s = -1; i < AI.tokensLeft; i++) {
 			s *= -1;
 			std::cout << " ";
 			Token(AI.playerType, static_cast<Token::Shape>(s)).print();
 			std::cout << " ";
 		}
-		std::cout << "(" << AI.pawnsLeft << ")\n"<<std::endl;
+		std::cout << "(" << AI.tokensLeft << ")\n"<<std::endl;
 
 }
 
