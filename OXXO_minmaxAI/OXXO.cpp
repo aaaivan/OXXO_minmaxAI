@@ -14,7 +14,7 @@ int main() {
 	Player player{};
 	Player AI{};
 	Board board = Board();
-	int minimaxDepth = 4;
+	int minimaxDepth = 3;
 	askWinningMode(player, AI); //ask plyer if the want to allign colours or shapes
 	bool userHasWon = false;
 	bool aiHasWon = false;

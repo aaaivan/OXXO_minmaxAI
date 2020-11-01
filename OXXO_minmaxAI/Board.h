@@ -23,8 +23,8 @@ public:
 	static Token* getTokenAtPositon(int x1, int x2);
 	friend void makeMoveAI(Player& player, Player& AI, Board &b, int depth);
 	friend int minimax(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent);
-	friend void makeMoveControlAI(Player& player, Player& AI, Board& b, int depth);
-	friend int minimaxControl(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent);
+	friend void makeMoveRefAI(Player& player, Player& AI, Board& b, int depth);
+	friend int minimaxReference(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent);
 };
 
 #endif // !BOARD_H

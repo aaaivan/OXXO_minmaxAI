@@ -18,16 +18,16 @@ void askWinningMode(Player &player, Player &AI){
 		if (tempStr.length() != 1)
 			std::cout << "Invalid input. Try again." << std::endl;
 		else if (input == 'S') {
-			player.winMode = WinMode::allignShapes;
-			AI.winMode = WinMode::allignColours;
+			player.winMode = WinMode::alignShapes;
+			AI.winMode = WinMode::alignColours;
 			player.playerType = Token::PlayerType::user;
 			AI.playerType = Token::PlayerType::AI;
 			std::cout << "Great! Your opponent will have to allign 4 colors then.\nYOU WILL USE THE WHITE TOKENS!\n" << std::endl;
 			return;
 		}
 		else if (input == 'C') {
-			AI.winMode = WinMode::allignShapes;
-			player.winMode = WinMode::allignColours;
+			AI.winMode = WinMode::alignShapes;
+			player.winMode = WinMode::alignColours;
 			player.playerType = Token::PlayerType::user;
 			AI.playerType = Token::PlayerType::AI;
 			std::cout << "Great! Your opponent will have to allign 4 shapes then.\nYOU WILL USE THE WHITE TOKENS!\n" << std::endl;
@@ -228,7 +228,7 @@ void makeMoveAI(Player &player, Player &AI, Board &b, int depth) {
 	}
 }
 
-int minimax(Board &b, Player &player, Player &AI, int depth, int alpha, int beta, bool maximazingAgent) {
+int minimax(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent) {
 	bool playerHasWon = b.playerHasWon(player);
 	bool AIHasWon = b.playerHasWon(AI);
 	if (playerHasWon && !AIHasWon) //player wins
@@ -236,9 +236,9 @@ int minimax(Board &b, Player &player, Player &AI, int depth, int alpha, int beta
 	else if (!playerHasWon && AIHasWon) //AI wins
 		return std::numeric_limits<int>::min();
 	else if (playerHasWon && AIHasWon)
-		//both player have a winning line, so the winner depends on whose turn is it
+		//both players have a winning line, so the winner depends on whose turn is it
 		return maximazingAgent ? std::numeric_limits<int>::max() : std::numeric_limits<int>::min();
-	
+
 	if (depth == 0)
 		return b.boardEvaluation(player, AI);
 
@@ -262,7 +262,7 @@ int minimax(Board &b, Player &player, Player &AI, int depth, int alpha, int beta
 				if (b.addToken(i, j, player, Token::Shape::o)) {//try to add an O
 					//evaluate new configuration
 					eval = minimax(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-					//restore initial configuuration
+					//restore initial configuration
 					b.removeToken(i, j, player);
 					maxEval = std::max(maxEval, eval);
 					alpha = std::max(alpha, eval);
@@ -336,49 +336,77 @@ int minimax(Board &b, Player &player, Player &AI, int depth, int alpha, int beta
 	}
 }
 
-void makeMoveControlAI(Player& player, Player& AI, Board& b, int depth) {
+void makeMoveRefAI(Player& player, Player& AI, Board& b, int depth) {
+	//the reference AI will be the maximizing agent
 	int maxEval = std::numeric_limits<int>::min();
+	//for alpha-beta pruning
+	int alpha = std::numeric_limits<int>::min();
+	int beta = std::numeric_limits<int>::max();
+
+	//these will store information on the next move with 
+	//the highest evaluation score
 	std::pair<int, int> nextMove = { 0,0 };
 	Token::Shape faceUp = Token::Shape::o;
 
 	std::vector<std::pair<int, int>> allMoves;
 
-	for (unsigned int i = 0; i < Board::size; i++) {
-		for (unsigned int j = 0; j < Board::size; j++) {
-			int eval;
-			if (b.flipToken(i, j, player)) {
-				eval = minimaxControl(b, player, AI, depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), false);
+	//loop through all the squares of the board
+	int loopIterations = (Board::size) * (Board::size);
+	for (unsigned int i = 0, j = 0; i * Board::size + j < loopIterations;) {
+		int eval;
+		if (b.flipToken(i, j, player)) {//try to flip the token
+			//evaluate new configuration
+			eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, false);
+			allMoves.push_back({ i,j });
+			if (eval > maxEval) {
+				maxEval = eval;
+				nextMove = { i,j };
+			}
+			//restore initial configuration
+			b.flipToken(i, j, player);
+			alpha = std::max(alpha, eval);
+			if (beta <= alpha)
+				break;
+		}
+		else {
+			if (b.addToken(i, j, player, Token::Shape::o)) {//try to add an O
+				//evaluate new configuration
+				eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, false);
 				allMoves.push_back({ i,j });
 				if (eval > maxEval) {
 					maxEval = eval;
 					nextMove = { i,j };
+					faceUp = b.board[i][j]->getShape();
 				}
-				b.flipToken(i, j, player);
+				//restore initial configuration
+				b.removeToken(i, j, player);
+				alpha = std::max(alpha, eval);
+				if (beta <= alpha)
+					break;
 			}
-			else {
-				if (b.addToken(i, j, player, Token::Shape::o)) {
-					eval = minimaxControl(b, player, AI, depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), false);
-					allMoves.push_back({ i,j });
-					if (eval > maxEval) {
-						maxEval = eval;
-						nextMove = { i,j };
-						faceUp = b.board[i][j]->getShape();
-					}
-					b.removeToken(i, j, player);
+			if (b.addToken(i, j, player, Token::Shape::x)) {//try to add an X
+				//evaluate new configuration
+				eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, false);
+				allMoves.push_back({ i,j });
+				if (eval > maxEval) {
+					maxEval = eval;
+					nextMove = { i,j };
+					faceUp = b.board[i][j]->getShape();
 				}
-				if (b.addToken(i, j, player, Token::Shape::x)) {
-					eval = minimaxControl(b, player, AI, depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), false);
-					allMoves.push_back({ i,j });
-					if (eval > maxEval) {
-						maxEval = eval;
-						nextMove = { i,j };
-						faceUp = b.board[i][j]->getShape();
-					}
-					b.removeToken(i, j, player);
-				}
+				//restore initial configuration
+				b.removeToken(i, j, player);
+				alpha = std::max(alpha, eval);
+				if (beta <= alpha)
+					break;
 			}
 		}
+		j++;
+		if (j == Board::size) {
+			i++;
+			j = 0;
+		}
 	}
+	//if all possible moves are evaluated to +infinity make a random move
 	if (maxEval == std::numeric_limits<int>::min()) {
 		std::pair<int, int> randomMove = allMoves[std::rand() % allMoves.size()];
 		if (b.flipToken(randomMove.first, randomMove.second, player)) {
@@ -386,7 +414,7 @@ void makeMoveControlAI(Player& player, Player& AI, Board& b, int depth) {
 		else
 			b.addToken(randomMove.first, randomMove.second, player, static_cast<Token::Shape>(2 * (std::rand() % 2) - 1));
 	}
-	else {
+	else {//make the move with the highest evaluation
 		if (b.flipToken(nextMove.first, nextMove.second, player)) {
 		}
 		else
@@ -394,85 +422,110 @@ void makeMoveControlAI(Player& player, Player& AI, Board& b, int depth) {
 	}
 }
 
-int minimaxControl(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent) {
-	bool playerHasWon = b.playerHasWon(player);
+int minimaxReference(Board& b, Player& player, Player& AI, int depth, int alpha, int beta, bool maximazingAgent) {
+	bool refHasWon = b.playerHasWon(player);
 	bool AIHasWon = b.playerHasWon(AI);
-	if (playerHasWon && !AIHasWon)
+	if (refHasWon && !AIHasWon) //reference AI wins
 		return std::numeric_limits<int>::max();
-	else if (!playerHasWon && AIHasWon)
+	else if (!refHasWon && AIHasWon) //AI wins
 		return std::numeric_limits<int>::min();
-	else if (playerHasWon && AIHasWon) {
+	else if (refHasWon && AIHasWon)
+		//both players have a winning line, so the winner depends on whose turn is it
 		return maximazingAgent ? std::numeric_limits<int>::max() : std::numeric_limits<int>::min();
-	}
+	
 	if (depth == 0)
 		return b.boardEvaluationControl(player, AI);
 
 	if (maximazingAgent) {
 		int maxEval = std::numeric_limits<int>::min();
-		for (unsigned int i = 0; i < Board::size; i++) {
-			for (unsigned int j = 0; j < Board::size; j++) {
-				int eval;
-				if (b.flipToken(i, j, player)) {
-					eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-					b.flipToken(i, j, player);
+		//loop through all the squares in the board
+		int loopIterations = (Board::size) * (Board::size);
+		for (unsigned int i = 0, j = 0; i * Board::size + j < loopIterations;) {
+			int eval;
+			if (b.flipToken(i, j, player)) {// try to flip the token
+				//evaluate new configuration
+				eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+				//restore initial configuration
+				b.flipToken(i, j, player);
+				maxEval = std::max(maxEval, eval);
+				alpha = std::max(alpha, maxEval);
+				if (beta <= alpha)
+					break;
+			}
+			else {
+				if (b.addToken(i, j, player, Token::Shape::o)) {//try to add an O
+					//evaluate new configuration
+					eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+					//restore initial configuration
+					b.removeToken(i, j, player);
 					maxEval = std::max(maxEval, eval);
 					alpha = std::max(alpha, maxEval);
 					if (beta <= alpha)
 						break;
 				}
-				else {
-					if (b.addToken(i, j, player, Token::Shape::o)) {
-						eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-						b.removeToken(i, j, player);
-						maxEval = std::max(maxEval, eval);
-						alpha = std::max(alpha, maxEval);
-						if (beta <= alpha)
-							break;
-					}
-					if (b.addToken(i, j, player, Token::Shape::x)) {
-						eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-						b.removeToken(i, j, player);
-						maxEval = std::max(maxEval, eval);
-						alpha = std::max(alpha, maxEval);
-						if (beta <= alpha)
-							break;
-					}
+				if (b.addToken(i, j, player, Token::Shape::x)) {
+					//evaluate new configuration
+					eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+					//restore initial configuration
+					b.removeToken(i, j, player);
+					maxEval = std::max(maxEval, eval);
+					alpha = std::max(alpha, maxEval);
+					if (beta <= alpha)
+						break;
 				}
+			}
+			j++;
+			if (j == Board::size)
+			{
+				i++;
+				j = 0;
 			}
 		}
 		return maxEval;
 	}
 	else {
 		int minEval = std::numeric_limits<int>::max();
-		for (unsigned int i = 0; i < Board::size; i++) {
-			for (unsigned int j = 0; j < Board::size; j++) {
-				int eval;
-				if (b.flipToken(i, j, AI)) {
-					eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+		//loop through all the squares in the board
+		int loopIterations = (Board::size) * (Board::size);
+		for (unsigned int i = 0, j = 0; i * Board::size + j < loopIterations;) {
+			int eval;
+			if (b.flipToken(i, j, AI)) {//try to flip the token
+				//evaluate new configuration
+				eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+				//restore initial configuration
+				minEval = std::min(minEval, eval);
+				b.flipToken(i, j, AI);
+				beta = std::min(beta, minEval);
+				if (beta <= alpha)
+					break;
+			}
+			else {
+				if (b.addToken(i, j, AI, Token::Shape::o)) {//try to add an O
+					//evaluate new configuration
+					eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+					//restore initial configuration
+					b.removeToken(i, j, AI);
 					minEval = std::min(minEval, eval);
-					b.flipToken(i, j, AI);
 					beta = std::min(beta, minEval);
 					if (beta <= alpha)
 						break;
 				}
-				else {
-					if (b.addToken(i, j, AI, Token::Shape::o)) {
-						eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-						b.removeToken(i, j, AI);
-						minEval = std::min(minEval, eval);
-						beta = std::min(beta, minEval);
-						if (beta <= alpha)
-							break;
-					}
-					if (b.addToken(i, j, AI, Token::Shape::x)) {
-						eval = minimaxControl(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
-						minEval = std::min(minEval, eval);
-						b.removeToken(i, j, AI);
-						beta = std::min(beta, minEval);
-						if (beta <= alpha)
-							break;
-					}
+				if (b.addToken(i, j, AI, Token::Shape::x)) {//try to add an X
+					//evaluate new configuration
+					eval = minimaxReference(b, player, AI, depth - 1, alpha, beta, !maximazingAgent);
+					//restore initial configuration
+					minEval = std::min(minEval, eval);
+					b.removeToken(i, j, AI);
+					beta = std::min(beta, minEval);
+					if (beta <= alpha)
+						break;
 				}
+			}
+			j++;
+			if (j == Board::size)
+			{
+				i++;
+				j = 0;
 			}
 		}
 		return minEval;

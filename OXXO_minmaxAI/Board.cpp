@@ -75,7 +75,7 @@ bool Board::flipToken(int x1, int x2, const Player &player) {
 bool Board::playerHasWon(const Player& player) {
 	int (*getAttribute)(Token*); //function pointer
 	//if the player is aligning COLOURS, getAttribute will return the colour of the Token
-	if (player.winMode == WinMode::allignColours) {
+	if (player.winMode == WinMode::alignColours) {
 		getAttribute = [](Token* p)
 		{
 			return (static_cast<int>(p->getShapeColour()));
@@ -137,20 +137,21 @@ int Board::boardEvaluation(const Player& player, const Player& AI) {
 		//matches score here is positive if there are more tokens with the same colour than with the same shape
 		//negative, if it is the other way around.
 		matchesScore = colourUnbalance * colourUnbalance - shapeUnbalance * shapeUnbalance;
-		if (player.winMode == WinMode::allignShapes)
+		if (player.winMode == WinMode::alignShapes)
 			matchesScore *= -1; //change sign of matchesScore if player is alligning shapes
 		//ideally, a player wants to have 1 or 2 tokens more than the opponent's in each line.
 		//Instead, it is not ideal to have 3 or 4 tokens in a line if there is none of the opponent's.
 		if (abs(tokenUnbalance) < 3 && tokenUnbalance!=0)
 			tokenDominionScore = (tokenUnbalance / abs(tokenUnbalance)) * tokenUnbalance * tokenUnbalance;
-		//add a small incentive to save tokens in order not to run out (3rd addendum).
-		//add a random value between -4 and 4 for a more unpredictable behaviour (4th addendum)
-		eval += matchesScore + tokenDominionScore + (player.tokensLeft - AI.tokensLeft)/2 + std::rand() % 8 - 4;
+		//add a random value between -4 and 4 for a more unpredictable behaviour (3th addendum)
+		eval += matchesScore + tokenDominionScore + std::rand() % 9 - 4;
 	}
+	//add an incentive to save tokens in order not to run out
+	eval += (player.tokensLeft - AI.tokensLeft) * 5;
 	return eval;
 }
 
-//in the control AI all moves are equivalent, so this function just return a random number
+//in the reference AI all moves are equivalent, so this function just return a random number
 //between 0 and 31 (there are at most 32 possible moves at any point in the game)
 int Board::boardEvaluationControl(const Player& user, const Player& AI) {
 	return rand() % 32;

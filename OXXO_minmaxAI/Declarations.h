@@ -4,7 +4,7 @@
 #include "Token.h"
 
 enum class WinMode {
-	allignColours, allignShapes
+	alignColours, alignShapes
 };
 
 struct Player {

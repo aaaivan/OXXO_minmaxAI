@@ -141,8 +141,8 @@
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Functions.cpp" />
-    <ClCompile Include="Token.cpp" />
     <ClCompile Include="OXXO.cpp" />
+    <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
